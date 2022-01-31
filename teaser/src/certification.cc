@@ -55,13 +55,13 @@ teaser::DRSCertifier::certify(const Eigen::Matrix3d& R_solution,
   SparseMatrix inverse_map;
   getLinearProjection(theta_prepended, &inverse_map);
   TEASER_DEBUG_STOP_TIMING(LProj);
-  TEASER_DEBUG_INFO_MSG("Obtained linear inverse map.");
-  TEASER_DEBUG_INFO_MSG("Linear projection time: " << TEASER_DEBUG_GET_TIMING(LProj));
+  //TEASER_DEBUG_INFO_MSG("Obtained linear inverse map.");
+  //TEASER_DEBUG_INFO_MSG("Linear projection time: " << TEASER_DEBUG_GET_TIMING(LProj));
 
   // recall data matrix from QUASAR
   Eigen::MatrixXd Q_cost(Npm, Npm);
   getQCost(src, dst, &Q_cost);
-  TEASER_DEBUG_INFO_MSG("Obtained Q_cost matrix.");
+  //TEASER_DEBUG_INFO_MSG("Obtained Q_cost matrix.");
 
   // convert the estimated rotation to quaternion
   Eigen::Quaterniond q_solution(R_solution);
@@ -79,7 +79,7 @@ teaser::DRSCertifier::certify(const Eigen::Matrix3d& R_solution,
   getBlockDiagOmega(Npm, q_solution, &D_omega);
   Eigen::MatrixXd Q_bar = D_omega.transpose() * (Q_cost * D_omega);
   Eigen::VectorXd x_bar = D_omega.transpose() * x;
-  TEASER_DEBUG_INFO_MSG("Obtained D_omega matrix.");
+  //TEASER_DEBUG_INFO_MSG("Obtained D_omega matrix.");
 
   // build J_bar matrix with a 4-by-4 identity at the top left corner
   Eigen::SparseMatrix<double> J_bar(Npm, Npm);
@@ -132,7 +132,7 @@ teaser::DRSCertifier::certify(const Eigen::Matrix3d& R_solution,
     TEASER_DEBUG_START_TIMING(PSD);
     teaser::getNearestPSD<double>(M, &M_PSD);
     TEASER_DEBUG_STOP_TIMING(PSD);
-    TEASER_DEBUG_INFO_MSG("PSD time: " << TEASER_DEBUG_GET_TIMING(PSD));
+    //TEASER_DEBUG_INFO_MSG("PSD time: " << TEASER_DEBUG_GET_TIMING(PSD));
 
     // projection to affine space
 #if EIGEN_VERSION_AT_LEAST(3,3,0)
@@ -146,7 +146,7 @@ teaser::DRSCertifier::certify(const Eigen::Matrix3d& R_solution,
     TEASER_DEBUG_START_TIMING(DualProjection);
     getOptimalDualProjection(temp_W, theta_prepended, inverse_map, &W_dual);
     TEASER_DEBUG_STOP_TIMING(DualProjection);
-    TEASER_DEBUG_INFO_MSG("Dual Projection time: " << TEASER_DEBUG_GET_TIMING(DualProjection));
+    //TEASER_DEBUG_INFO_MSG("Dual Projection time: " << TEASER_DEBUG_GET_TIMING(DualProjection));
 #if EIGEN_VERSION_AT_LEAST(3,3,0)
     M_affine = M_init + W_dual;
 #else
@@ -159,8 +159,8 @@ teaser::DRSCertifier::certify(const Eigen::Matrix3d& R_solution,
     TEASER_DEBUG_START_TIMING(Gap);
     current_suboptim = computeSubOptimalityGap(M_affine, mu, N);
     TEASER_DEBUG_STOP_TIMING(Gap);
-    TEASER_DEBUG_INFO_MSG("Sub Optimality Gap time: " << TEASER_DEBUG_GET_TIMING(Gap));
-    TEASER_DEBUG_INFO_MSG("Current sub-optimality gap: " << current_suboptim);
+    //TEASER_DEBUG_INFO_MSG("Sub Optimality Gap time: " << TEASER_DEBUG_GET_TIMING(Gap));
+    //TEASER_DEBUG_INFO_MSG("Current sub-optimality gap: " << current_suboptim);
 
     // termination check and update trajectory
     suboptim_traj.push_back(current_suboptim);
@@ -171,8 +171,8 @@ teaser::DRSCertifier::certify(const Eigen::Matrix3d& R_solution,
     }
 
     if (current_suboptim < params_.sub_optimality) {
-      TEASER_DEBUG_INFO_MSG("Suboptimality condition reached in " << iter + 1
-                                                                  << " iterations. Stopping DRS.");
+      //TEASER_DEBUG_INFO_MSG("Suboptimality condition reached in " << iter + 1
+                                                                  //<< " iterations. Stopping DRS.");
       exceeded_maxiters = false;
       break;
     }
@@ -651,9 +651,9 @@ void teaser::DRSCertifier::getLinearProjection(
       temp_column.reserve(nrNZ_per_row_off_diag);
     }
   }
-  TEASER_DEBUG_INFO_MSG("Finalizing A_inv ...");
+  //TEASER_DEBUG_INFO_MSG("Finalizing A_inv ...");
   A_inv->finalize();
-  TEASER_DEBUG_INFO_MSG("A_inv finalized.");
+  //TEASER_DEBUG_INFO_MSG("A_inv finalized.");
 }
 
 void teaser::DRSCertifier::getBlockRowSum(const Eigen::MatrixXd& A, const int& row,

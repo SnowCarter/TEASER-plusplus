@@ -37,7 +37,7 @@ TEST(RegistrationTest, LargeModel) {
   // Start the timer
   auto start = std::chrono::high_resolution_clock::now();
 
-  // Prepare the solver object
+  // Prepare the solver object //parameter setting up
   teaser::RobustRegistrationSolver::Params params;
   params.noise_bound = 0.0337;
   params.cbar2 = 1;

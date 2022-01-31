@@ -10,6 +10,8 @@
 
 #include <iostream>
 
+#define NDEBUG 1
+
 #define TEASER_DEBUG_ERROR_VAR(x)                                                                  \
   do {                                                                                             \
     std::cerr << #x << " = " << x << std::endl;                                                    \

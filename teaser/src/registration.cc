@@ -260,10 +260,10 @@ void teaser::FastGlobalRegistrationSolver::solveForRotation(
 
     // additional termination conditions
     if (cost_ < params_.cost_threshold || mu < min_mu) {
-      TEASER_DEBUG_INFO_MSG("Convergence condition met.");
-      TEASER_DEBUG_INFO_MSG("Iterations: " << i);
-      TEASER_DEBUG_INFO_MSG("Mu: " << mu);
-      TEASER_DEBUG_INFO_MSG("Cost: " << cost_);
+      //TEASER_DEBUG_INFO_MSG("Convergence condition met.");
+      //TEASER_DEBUG_INFO_MSG("Iterations: " << i);
+      //TEASER_DEBUG_INFO_MSG("Mu: " << mu);
+      //TEASER_DEBUG_INFO_MSG("Cost: " << cost_);
       break;
     }
 
@@ -412,8 +412,8 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
     params_.inlier_selection_mode = INLIER_SELECTION_MODE::NONE;
   }
   if (!params_.max_clique_exact_solution) {
-    TEASER_DEBUG_INFO_MSG("Using deprecated param field max_clique_exact_solution. Switch to "
-                          "inlier_selection_mode instead.");
+    //TEASER_DEBUG_INFO_MSG("Using deprecated param field max_clique_exact_solution. Switch to "
+                          //"inlier_selection_mode instead.");
     params_.inlier_selection_mode = INLIER_SELECTION_MODE::PMC_HEU;
   }
 
@@ -433,9 +433,9 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
    */
   src_tims_ = computeTIMs(src, &src_tims_map_);
   dst_tims_ = computeTIMs(dst, &dst_tims_map_);
-  TEASER_DEBUG_INFO_MSG("Starting scale solver.");
+  //TEASER_DEBUG_INFO_MSG("Starting scale solver.");
   solveForScale(src_tims_, dst_tims_);
-  TEASER_DEBUG_INFO_MSG("Scale estimation complete.");
+  //TEASER_DEBUG_INFO_MSG("Scale estimation complete.");
 
   // Calculate Maximum Clique
   // Note: the max_clique_ vector holds the indices of original measurements that are within the
@@ -467,14 +467,14 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
     teaser::MaxCliqueSolver clique_solver(clique_params);
     max_clique_ = clique_solver.findMaxClique(inlier_graph_);
     std::sort(max_clique_.begin(), max_clique_.end());
-    TEASER_DEBUG_INFO_MSG("Max Clique of scale estimation inliers: ");
+    //TEASER_DEBUG_INFO_MSG("Max Clique of scale estimation inliers: ");
 #ifndef NDEBUG
     std::copy(max_clique_.begin(), max_clique_.end(), std::ostream_iterator<int>(std::cout, " "));
     std::cout << std::endl;
 #endif
     // Abort if max clique size <= 1
     if (max_clique_.size() <= 1) {
-      TEASER_DEBUG_INFO_MSG("Clique size too small. Abort.");
+      //TEASER_DEBUG_INFO_MSG("Clique size too small. Abort.");
       solution_.valid = false;
       return solution_;
     }
@@ -489,7 +489,7 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
   // Calculate new measurements & TIMs based on max clique inliers
   if (params_.rotation_tim_graph == INLIER_GRAPH_FORMULATION::CHAIN) {
     // chain graph
-    TEASER_DEBUG_INFO_MSG("Using chain graph for GNC rotation.");
+    //TEASER_DEBUG_INFO_MSG("Using chain graph for GNC rotation.");
     pruned_src_tims_.resize(3, max_clique_.size());
     pruned_dst_tims_.resize(3, max_clique_.size());
     src_tims_map_rotation_.resize(2, max_clique_.size());
@@ -513,7 +513,7 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
     }
   } else {
     // complete graph
-    TEASER_DEBUG_INFO_MSG("Using complete graph for GNC rotation.");
+    //TEASER_DEBUG_INFO_MSG("Using complete graph for GNC rotation.");
     // select the inlier measurements with max clique
     Eigen::Matrix<double, 3, Eigen::Dynamic> src_inliers(3, max_clique_.size());
     Eigen::Matrix<double, 3, Eigen::Dynamic> dst_inliers(3, max_clique_.size());
@@ -537,9 +537,9 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
   rotation_solver_->setParams(params);
 
   // Solve for rotation
-  TEASER_DEBUG_INFO_MSG("Starting rotation solver.");
+  //TEASER_DEBUG_INFO_MSG("Starting rotation solver.");
   solveForRotation(pruned_src_tims_, pruned_dst_tims_);
-  TEASER_DEBUG_INFO_MSG("Rotation estimation complete.");
+  //TEASER_DEBUG_INFO_MSG("Rotation estimation complete.");
 
   // Save indices of inlier TIMs from GNC rotation estimation
   for (size_t i = 0; i < rotation_inliers_mask_.cols(); ++i) {
@@ -555,10 +555,10 @@ teaser::RobustRegistrationSolver::solve(const Eigen::Matrix<double, 3, Eigen::Dy
   }
 
   // Solve for translation
-  TEASER_DEBUG_INFO_MSG("Starting translation solver.");
+  //TEASER_DEBUG_INFO_MSG("Starting translation solver.");
   solveForTranslation(solution_.scale * solution_.rotation * rotation_pruned_src,
                       rotation_pruned_dst);
-  TEASER_DEBUG_INFO_MSG("Translation estimation complete.");
+  //TEASER_DEBUG_INFO_MSG("Translation estimation complete.");
 
   // Find the final inliers
   translation_inliers_ = utils::findNonzero<bool>(translation_inliers_mask_);
@@ -588,7 +588,7 @@ Eigen::Vector3d teaser::RobustRegistrationSolver::solveForTranslation(
 
 Eigen::Matrix3d teaser::RobustRegistrationSolver::solveForRotation(
     const Eigen::Matrix<double, 3, Eigen::Dynamic>& v1,
-    const Eigen::Matrix<double, 3, Eigen::Dynamic>& v2) {
+    const Eigen::Matrix<double, 3, Eigen::Dynamic>& v2) {// how to get solution_.rotation
   rotation_inliers_mask_.resize(1, v1.cols());
   rotation_solver_->solveForRotation(v1, v2, &(solution_.rotation), &rotation_inliers_mask_);
   return solution_.rotation;
@@ -627,8 +627,8 @@ void teaser::GNCTLSRotationSolver::solveForRotation(
   if (noise_bound_sq < 1e-16) {
     noise_bound_sq = 1e-2;
   }
-  TEASER_DEBUG_INFO_MSG("GNC rotation estimation noise bound:" << params_.noise_bound);
-  TEASER_DEBUG_INFO_MSG("GNC rotation estimation noise bound squared:" << noise_bound_sq);
+  //TEASER_DEBUG_INFO_MSG("GNC rotation estimation noise bound:" << params_.noise_bound);
+  //TEASER_DEBUG_INFO_MSG("GNC rotation estimation noise bound squared:" << noise_bound_sq);
 
   Eigen::Matrix<double, 3, Eigen::Dynamic> diffs(3, match_size);
   Eigen::Matrix<double, 1, Eigen::Dynamic> weights(1, match_size);
@@ -684,9 +684,9 @@ void teaser::GNCTLSRotationSolver::solveForRotation(
     prev_cost = cost_;
 
     if (cost_diff < params_.cost_threshold) {
-      TEASER_DEBUG_INFO_MSG("GNC-TLS solver terminated due to cost convergence.");
-      TEASER_DEBUG_INFO_MSG("Cost diff: " << cost_diff);
-      TEASER_DEBUG_INFO_MSG("Iterations: " << i);
+      //TEASER_DEBUG_INFO_MSG("GNC-TLS solver terminated due to cost convergence.");
+      //TEASER_DEBUG_INFO_MSG("Cost diff: " << cost_diff);
+      //TEASER_DEBUG_INFO_MSG("Iterations: " << i);
       break;
     }
   }
